@@ -1,1 +1,1 @@
-# pizza-hunt
+# Pizza Hunt
