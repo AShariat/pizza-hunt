@@ -6,6 +6,16 @@ const pizzaController = {
   // The first method, getAllPizza(), will serve as the callback function for the GET /api/pizzas route. It uses the Mongoose .find() method, much like the Sequelize .findAll() method.
   getAllPizza(req, res) {
     Pizza.find({})
+      // In SQL we joined two tables to resolve the problem, but in MongoDB we'll populate a field. To populate a field, just chain the .populate() method onto your query, passing in an object with the key path plus the value of the field you want populated.
+      .populate({
+        path: "comments",
+        // We also used the select option inside of populate(), so that we can tell Mongoose that we don't care about the __v field on comments either. The minus sign - in front of the field indicates that we don't want it to be returned. If we didn't have it, it would mean that it would return only the __v field.
+        select: "-__v",
+      })
+      // Since we're doing that for our populated comments, let's update the query to not include the pizza's __v field either, as it just adds more noise to our returning data.
+      .select("-__v")
+      // This gets the newest pizza because a timestamp value is hidden somewhere inside the MongoDB ObjectId.
+      .sort({ _id: -1 })
       .then((dbPizzaData) => res.json(dbPizzaData))
       .catch((err) => {
         console.log(err);
@@ -17,8 +27,12 @@ const pizzaController = {
   // The second method, .getPizzaById(), uses the Mongoose .findOne() method to find a single pizza by its _id. Instead of accessing the entire req, we've destructured params out of it, because that's the only data we need for this request to be fulfilled.
   getPizzaById({ params }, res) {
     Pizza.findOne({ _id: params.id })
+      .populate({
+        path: "comments",
+        select: "-__v",
+      })
+      .select("-__v")
       .then((dbPizzaData) => {
-        // If no pizza is found, send 404
         if (!dbPizzaData) {
           res.status(404).json({ message: "No pizza found with this id!" });
           return;
