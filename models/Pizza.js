@@ -6,9 +6,16 @@ const PizzaSchema = new Schema(
   {
     pizzaName: {
       type: String,
+      // It will require data to exist for that field.
+      // required: true, or:
+      required: "You need to provide a pizza name!",
+      // It removes white space before and after the input string.
+      trim: true,
     },
     createdBy: {
       type: String,
+      required: true,
+      trim: true,
     },
     // For the timestamp field, createdAt, we set a default value to the JavaScript Date.now function. If no value is provided in this field when the user creates new data, the Date.now function will be executed and will provide a timestamp. This way we don't have to create the timestamp elsewhere and send that data.
     createdAt: {
@@ -19,6 +26,10 @@ const PizzaSchema = new Schema(
     },
     size: {
       type: String,
+      // If you were to provide a custom error message for the required option here, you wouldn't receive it if you provide a size that isn't listed in the enum option. If you want to provide a custom message for enumerable values, you need to look into implementing the validate option Mongoose lets you use, where you can create a custom function to test the values, just like you did with Inquirer!
+      required: true,
+      // The enum option stands for enumerable, a popular term in web development that refers to a set of data that can be iterated over.
+      enum: ["Personal", "Small", "Medium", "Large", "Extra Large"],
       default: "Large",
     },
     // The empty brackets [] in the toppings field. This indicates an array as the data type. You could also specify Array in place of the brackets.
